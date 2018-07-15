@@ -1,11 +1,16 @@
 // Summer 2018 WordSearch project
 // Geraldo Macias
 
+// TODO:
+// 1. Change csv file letters to lowercase
+// 2. Force user input to lowercase
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
+import java.util.Scanner;
 
 
 public class WordSearch {
@@ -15,9 +20,19 @@ public class WordSearch {
 
   public static void main(String[] args) {
     WordSearch ws = new WordSearch();
+    String word_to_search_for = "0";
     // Read in csv file of crossword puzzle
     ws.setPuzzle(ws.newPuzzle(args[0]));
     ws.printPuzzle();
+
+    while ((word_to_search_for = ws.getWord()) != "0") {
+      if (ws.word_search(word_to_search_for)) {
+        System.out.println(word_to_search_for + " found");
+      } else {
+        System.out.println(word_to_search_for + " not found");
+      }
+    }
+
   }
 
   // Setters
@@ -41,7 +56,13 @@ public class WordSearch {
   public Vector<String> getPuzzle() {
     return puzzle;
   }
-
+  // Retrieves a a word from the command line
+  private String getWord() {
+    Scanner keyboard = new Scanner(System.in);
+    System.out.println("--- Please enter a word to search for ---");
+    System.out.println("--- Enter 0 to terminate program ---");
+    return keyboard.nextLine();
+  }
 
   public void printPuzzle() {
     System.out.println("--- printPuzzle() ---");
@@ -50,7 +71,6 @@ public class WordSearch {
       System.out.println(grid.elementAt(i));
     }
   }
-
 
   public Vector<String> newPuzzle(String file) {
     BufferedReader br = null;
@@ -107,7 +127,7 @@ public class WordSearch {
       for (int j = 0; j < getColumns(); j++) {
         // Search for a matching first element
         if (puzzle.elementAt(i).charAt(j) == first_letter) {
-
+          System.out.println("First letter match!");
           // * Search left to right
           if (searchRight(i, j, word_to_search_for)) {
             return true;
