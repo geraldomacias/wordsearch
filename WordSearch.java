@@ -92,52 +92,53 @@ public class WordSearch {
     return puzzle;
   }
 
-  public bool word_search(String word_to_search_for) {
-    bool result = false;
-    int r = getRows();
-    int c = getColumns();
-    int l = word_to_search_for.length();
+  public boolean word_search(String word_to_search_for) {
+    boolean result = false;
     int current_search_index = 0;
 
-    if (!word_to_search_for) {
+    if (word_to_search_for.isEmpty()) {
       return false;
     }
 
-    char current_letter = word_to_search_for[current_search_index++];
+    char first_letter = word_to_search_for.charAt(0);
     // Loop through each row
     for (int i = 0; i < getRows(); i++) {
       // Loop through each column in each row
       for (int j = 0; j < getColumns(); j++) {
         // Search for a matching first element
-        if (puzzle.elementAt(i)[j] == current_letter) {
-          int i_index = i;
-          int j_index = j;
-          // Matching first element
+        if (puzzle.elementAt(i).charAt(j) == first_letter) {
+
           // * Search left to right
-          if (c-j-1 >= l) {
-            // If there is room to move to the right without hitting an edge
-            // Check sequence of right characters
-            int it = 1;
-            do {
-              current_letter = word_to_search_for[current_search_index++];
-              // If the last element of the search matches return true
-              if (it - l == 1 && puzzle.getElementAt(i)[j_index++] == current_letter) {
-                return true;
-              }
-            } while (it < l && puzzle.getElementAt(i)[j_index++] == current_letter);
-            // At this point the word is not found left to right
-            // Reset altered values
-            j_index = j;
-            current_search_index = 1;
-            current_letter = word_to_search_for[current_search_index];
+          if (searchRight(i, j, word_to_search_for)) {
+            return true;
           }
           // * Search right to left
         }
       }
     }
-
-
-
     return result;
+  }
+
+  private boolean searchRight(int i, int j, String word_to_search_for) {
+    char current_letter;
+    int r = getRows();
+    int c = getColumns();
+    int l = word_to_search_for.length();
+    int it;
+    // If there is room to move to the right without hitting an edge
+    // Check sequence of right characters
+    if (c-j-1 >= l) {
+      it = 1;
+      do {
+        current_letter = word_to_search_for.charAt(it);
+        // If the last element of the search matches, return true
+        if (it - l == 1 && puzzle.elementAt(i).charAt(j) == current_letter) {
+          return true;
+        }
+        it++;
+      } while (it < l && puzzle.elementAt(i).charAt(j++) == current_letter);
+      // At this point the word is not found left to right
+    }
+    return false;
   }
 }
