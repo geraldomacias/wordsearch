@@ -20,12 +20,12 @@ public class WordSearch {
 
   public static void main(String[] args) {
     WordSearch ws = new WordSearch();
-    String word_to_search_for = "0";
+    String word_to_search_for = "exit";
     // Read in csv file of crossword puzzle
     ws.setPuzzle(ws.newPuzzle(args[0]));
     ws.printPuzzle();
 
-    while ((word_to_search_for = ws.getWord()) != "0") {
+    while (!(word_to_search_for = ws.getWord()).equals("exit")) {
       if (ws.word_search(word_to_search_for)) {
         System.out.println(word_to_search_for + " found");
       } else {
@@ -33,6 +33,8 @@ public class WordSearch {
       }
     }
 
+    System.out.println("Thank you for playing :)");
+    return;
   }
 
   // Setters
@@ -60,7 +62,7 @@ public class WordSearch {
   private String getWord() {
     Scanner keyboard = new Scanner(System.in);
     System.out.println("--- Please enter a word to search for ---");
-    System.out.println("--- Enter 0 to terminate program ---");
+    System.out.println("--- Type and return 'exit' to terminate program ---");
     return keyboard.nextLine();
   }
 
@@ -131,7 +133,10 @@ public class WordSearch {
           // * Search left to right
           if (searchRight(i, j, word_to_search_for)) {
             return true;
+          } else if (searchLeft(i, j, word_to_search_for)) {
+              return true;
           }
+
           // * Search right to left
         }
       }
@@ -140,25 +145,43 @@ public class WordSearch {
   }
 
   private boolean searchRight(int i, int j, String word_to_search_for) {
-    char current_letter;
-    int r = getRows();
+    String right = "";
     int c = getColumns();
     int l = word_to_search_for.length();
     int it;
+
     // If there is room to move to the right without hitting an edge
     // Check sequence of right characters
     if (c-j-1 >= l) {
-      it = 1;
-      do {
-        current_letter = word_to_search_for.charAt(it);
-        // If the last element of the search matches, return true
-        if (it - l == 1 && puzzle.elementAt(i).charAt(j) == current_letter) {
-          return true;
+        System.out.println(". . . searching right");
+        for (int y = j; y < l + j; y++) {
+            right = right + puzzle.elementAt(i).charAt(y);
         }
-        it++;
-      } while (it < l && puzzle.elementAt(i).charAt(j++) == current_letter);
-      // At this point the word is not found left to right
+        if (right.equals(word_to_search_for)) {
+            return true;
+        }
+    } else {
+        System.out.println(". . . no room to the right");
     }
     return false;
+  }
+
+  private boolean searchLeft(int i, int j, String word_to_search_for) {
+      String left = "";
+      int c = getColumns();
+      int l = word_to_search_for.length();
+
+      if((j+1) - l >= 0) {
+          System.out.println(". . . searching left");
+          for(int y = j; y >= (j+1-l); y--) {
+              left = left + puzzle.elementAt(i).charAt(y);
+          }
+          if (left.equals(word_to_search_for)) {
+              return true;
+          }
+      } else {
+          System.out.println(". . . no room to the left");
+      }
+      return false;
   }
 }
