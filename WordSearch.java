@@ -1,9 +1,17 @@
 // Summer 2018 WordSearch project
 // Geraldo Macias
 
-// TODO:
-// 1. Change csv file letters to lowercase
-// 2. Force user input to lowercase
+/* TODO:
+ 1. Reformat to 4 space tabs.
+ 2. Search:
+    a. Up
+    b. Down
+    c. Diagonal ur
+    d. Diagonal ul
+    e. Diagonal dl
+    f. Diagonal dr
+    (hint - use distance flags to reduce checks)
+*/
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -13,6 +21,7 @@ import java.util.Vector;
 import java.util.Scanner;
 import java.io.File;
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
 
@@ -23,43 +32,24 @@ public class WordSearch {
 
     public static void main(String[] args) {
 
-        /*      JAVA Swing ***********************
-
-            Instead of using a comand line input
-            Use Java Swing for user to select file
-
-
-        ***************************************/
-        File selectedFile = null;
-        JFileChooser jfc = new JFileChooser(".", FileSystemView.getFileSystemView());
-        int returnValue = jfc.showOpenDialog(null);
-        // int returnValue = jfc.showSaveDialog(null);
-
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            selectedFile = jfc.getSelectedFile();
-            System.out.println("getAbsPath\t" + selectedFile.getAbsolutePath());
-        }
-
-        // Verify the file is a csv file.
-
 
         // Open file
         WordSearch ws = new WordSearch();
         String wordToSearchFor = "exit";
 
         // Read in CSV file of crossword puzzle
-        ws.setPuzzle(ws.newPuzzle(selectedFile.getAbsolutePath()));
+        ws.setPuzzle(ws.newPuzzle(ws.getFilePath()));
         ws.printPuzzle();
 
         // Play the game
         while (!(wordToSearchFor = ws.getWord()).equals("exit")) {
-            if (ws.word_search(wordToSearchFor)) {
+            if (ws.wordSearch(wordToSearchFor)) {
                  wordToSearchFor += (" found");
             }
             else {
                wordToSearchFor += (" not found");
-        }
-            System.out.println("\n" + wordToSearchFor);
+            }
+            System.out.println("\n++++ " + wordToSearchFor + " ++++");
         }
 
         System.out.println("Thank you for playing :)");
@@ -87,14 +77,23 @@ public class WordSearch {
   public Vector<String> getPuzzle() {
         return puzzle;
   }
-  // Retrieves a a word from the command line
+
+    /*************** getWord ****************************************
+     * Uses the Scanner class to process and return input from the
+     * comand line
+     * @return
+     */
   private String getWord() {
         Scanner keyboard = new Scanner(System.in);
         System.out.println("--- Please enter a word to search for ---");
-        System.out.println("--- Type and return 'exit' to terminate program ---");
-        return keyboard.nextLine();
+        System.out.println("--- or type and return 'exit' to terminate program ---");
+        return keyboard.nextLine().toLowerCase();
   }
 
+    /*************** printPuzzle ****************************************
+     * Print the current puzzle
+     * TODO: May not need to use getPuzzle since we have access to puzzle
+     */
   public void printPuzzle() {
     System.out.println("--- printPuzzle() ---");
     Vector<String> grid = getPuzzle();
@@ -103,6 +102,11 @@ public class WordSearch {
     }
   }
 
+    /*************** newPuzzle ****************************************
+     * Creates a new matrix containing the characters found in a csv file
+     * @param file
+     * @return the created matrix
+     */
   public Vector<String> newPuzzle(String file) {
     BufferedReader br = null;
     puzzle = new Vector<>();
@@ -122,7 +126,7 @@ public class WordSearch {
         }
         // Increase row count
         setRows(getRows() + 1);
-        puzzle.add(compact);
+        puzzle.add(compact.toLowerCase());
       }
     } catch (FileNotFoundException e) {
       e.printStackTrace();
@@ -143,7 +147,12 @@ public class WordSearch {
     return puzzle;
   }
 
-  public boolean word_search(String word_to_search_for) {
+    /*************** wordSearch ****************************************
+     * Responsible for calling different search directions
+     * @param word_to_search_for
+     * @return
+     */
+  public boolean wordSearch(String word_to_search_for) {
     boolean result = false;
     int current_search_index = 0;
 
@@ -173,6 +182,13 @@ public class WordSearch {
     return result;
   }
 
+    /*************** searchRight ***************************************
+     * Given i,j search to the right for a match
+     * @param i row to start search
+     * @param j column to start search
+     * @param word_to_search_for
+     * @return
+     */
   private boolean searchRight(int i, int j, String word_to_search_for) {
     String right = "";
     int c = getColumns();
@@ -195,6 +211,13 @@ public class WordSearch {
     return false;
   }
 
+    /*************** searchLeft ****************************************
+     * Given i,j search to the left for a match
+     * @param i row to start search
+     * @param j column to start search
+     * @param word_to_search_for
+     * @return
+     */
   private boolean searchLeft(int i, int j, String word_to_search_for) {
       String left = "";
       int c = getColumns();
@@ -213,4 +236,30 @@ public class WordSearch {
       }
       return false;
   }
+
+
+    /*************** getFilePath ****************************************
+     * Uses JAVA Swing to open a CSV file.
+     * TODO: Consider using a try catch for file opening.
+     * @return
+     */
+   public String getFilePath() {
+
+      File selectedFile = null;
+      JFileChooser jfc = new JFileChooser(".", FileSystemView.getFileSystemView());
+      jfc.setDialogTitle("Select a csv file");
+      jfc.setAcceptAllFileFilterUsed(false);
+      FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV", "csv");
+      jfc.addChoosableFileFilter(filter);
+
+      int returnValue = jfc.showOpenDialog(null);
+      // int returnValue = jfc.showSaveDialog(null);
+
+      if (returnValue == JFileChooser.APPROVE_OPTION) {
+          selectedFile = jfc.getSelectedFile();
+          return(selectedFile.getAbsolutePath());
+
+      }
+      return null;
+   }
 }
