@@ -11,59 +11,88 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
 import java.util.Scanner;
+import java.io.File;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileSystemView;
 
 
 public class WordSearch {
 
-  private Vector<String> puzzle;
-  private int rows, columns = 0;
+    private Vector<String> puzzle;
+    private int rows, columns = 0;
 
-  public static void main(String[] args) {
-    WordSearch ws = new WordSearch();
-    String word_to_search_for = "exit";
-    // Read in csv file of crossword puzzle
-    ws.setPuzzle(ws.newPuzzle(args[0]));
-    ws.printPuzzle();
+    public static void main(String[] args) {
 
-    while (!(word_to_search_for = ws.getWord()).equals("exit")) {
-      if (ws.word_search(word_to_search_for)) {
-        System.out.println(word_to_search_for + " found");
-      } else {
-        System.out.println(word_to_search_for + " not found");
-      }
-    }
+        /*      JAVA Swing ***********************
 
-    System.out.println("Thank you for playing :)");
-    return;
+            Instead of using a comand line input
+            Use Java Swing for user to select file
+
+
+        ***************************************/
+        File selectedFile = null;
+        JFileChooser jfc = new JFileChooser(".", FileSystemView.getFileSystemView());
+        int returnValue = jfc.showOpenDialog(null);
+        // int returnValue = jfc.showSaveDialog(null);
+
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            selectedFile = jfc.getSelectedFile();
+            System.out.println("getAbsPath\t" + selectedFile.getAbsolutePath());
+        }
+
+        // Verify the file is a csv file.
+
+
+        // Open file
+        WordSearch ws = new WordSearch();
+        String wordToSearchFor = "exit";
+
+        // Read in CSV file of crossword puzzle
+        ws.setPuzzle(ws.newPuzzle(selectedFile.getAbsolutePath()));
+        ws.printPuzzle();
+
+        // Play the game
+        while (!(wordToSearchFor = ws.getWord()).equals("exit")) {
+            if (ws.word_search(wordToSearchFor)) {
+                 wordToSearchFor += (" found");
+            }
+            else {
+               wordToSearchFor += (" not found");
+        }
+            System.out.println("\n" + wordToSearchFor);
+        }
+
+        System.out.println("Thank you for playing :)");
+        return;
   }
 
   // Setters
   public void setRows(int rows) {
-    this.rows = rows;
+        this.rows = rows;
   }
   public void setColumns(int columns) {
-    this.columns = columns;
+        this.columns = columns;
   }
   public void setPuzzle(Vector<String> puzzle) {
-    this.puzzle = puzzle;
+        this.puzzle = puzzle;
   }
 
   // Getters
   public int getRows() {
-    return rows;
+        return rows;
   }
   public int getColumns() {
-    return columns;
+        return columns;
   }
   public Vector<String> getPuzzle() {
-    return puzzle;
+        return puzzle;
   }
   // Retrieves a a word from the command line
   private String getWord() {
-    Scanner keyboard = new Scanner(System.in);
-    System.out.println("--- Please enter a word to search for ---");
-    System.out.println("--- Type and return 'exit' to terminate program ---");
-    return keyboard.nextLine();
+        Scanner keyboard = new Scanner(System.in);
+        System.out.println("--- Please enter a word to search for ---");
+        System.out.println("--- Type and return 'exit' to terminate program ---");
+        return keyboard.nextLine();
   }
 
   public void printPuzzle() {
@@ -129,7 +158,7 @@ public class WordSearch {
       for (int j = 0; j < getColumns(); j++) {
         // Search for a matching first element
         if (puzzle.elementAt(i).charAt(j) == first_letter) {
-          System.out.println("First letter match!");
+          System.out.print("\nFirst letter match. ");
           // * Search left to right
           if (searchRight(i, j, word_to_search_for)) {
             return true;
@@ -152,16 +181,16 @@ public class WordSearch {
 
     // If there is room to move to the right without hitting an edge
     // Check sequence of right characters
-    if (c-j-1 >= l) {
-        System.out.println(". . . searching right");
+    if (c-j >= l) {
+        System.out.print(". . . searching right");
         for (int y = j; y < l + j; y++) {
-            right = right + puzzle.elementAt(i).charAt(y);
+            right += puzzle.elementAt(i).charAt(y);
         }
         if (right.equals(word_to_search_for)) {
             return true;
         }
     } else {
-        System.out.println(". . . no room to the right");
+        System.out.print(". . . no room to the right");
     }
     return false;
   }
@@ -172,7 +201,7 @@ public class WordSearch {
       int l = word_to_search_for.length();
 
       if((j+1) - l >= 0) {
-          System.out.println(". . . searching left");
+          System.out.print(". . . searching left");
           for(int y = j; y >= (j+1-l); y--) {
               left = left + puzzle.elementAt(i).charAt(y);
           }
@@ -180,7 +209,7 @@ public class WordSearch {
               return true;
           }
       } else {
-          System.out.println(". . . no room to the left");
+          System.out.print(". . . no room to the left");
       }
       return false;
   }
